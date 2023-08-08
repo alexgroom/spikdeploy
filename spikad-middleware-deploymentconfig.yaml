@@ -1,0 +1,59 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: spikad-middleware
+  name: spikad-middleware
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: spikad-middleware
+  strategy:
+    resources: {}
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/aero-spm-network: "true"
+        io.kompose.service: spikad-middleware
+    spec:
+      containers:
+        - env:
+            - name: PHONE_NUMBER
+              value: +39XXXXXXXXXX
+          image: ' '
+          name: spikad-middleware
+          ports:
+            - containerPort: 5000
+              hostPort: 443
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /home/.local/share
+              name: spikad-middleware-claim0
+      restartPolicy: Always
+      volumes:
+        - name: spikad-middleware-claim0
+          persistentVolumeClaim:
+            claimName: spikad-middleware-claim0
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - spikad-middleware
+        from:
+          kind: ImageStreamTag
+          name: spikad-middleware:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0

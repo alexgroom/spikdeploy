@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  
+  spikad-middleware:
+    build: ./
+    container_name: spikad-middleware
+    environment:
+      - PHONE_NUMBER=+39XXXXXXXXXX 
+    ports:
+      - "443:5000"
+    volumes:
+      - ".local/share/:/home/.local/share/" # map "spikad-cli-config" folder on host system into docker container. the folder contains sensitive informations when a new number is registered
+    networks:
+      - SPM-network
+    depends_on:
+      - redis-cache
+
+  redis-cache:
+    image: redis:latest
+    container_name: redis-cache
+    volumes:
+      - "./redis-data:/data"
+    networks:
+      - SPM-network
+
+networks:
+  SPM-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: BR-SpikAD
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.03.0.0/16
+          gateway: 172.03.0.1
